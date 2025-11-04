@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订阅信息收集（WPS 表单）</title>
+    <!-- 简单美化，可自定义样式 -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #f5f7fa; padding: 20px; font-family: "Microsoft YaHei", sans-serif; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; font-size: 24px; }
+        .form-embed { width: 100%; height: 800px; border: none; } /* 高度可根据表单长度调整 */
+        /* 响应式适配手机 */
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .form-embed { height: 700px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📩 订阅信息收集</h1>
+        <!-- 关键：替换 src 为你的 WPS 表单嵌入链接 -->
+        <iframe class="form-embed" src="https://f.wps.cn/g/GokUJ03u" frameborder="0" allowfullscreen></iframe>
+    </div>
+</body>
+</html>
