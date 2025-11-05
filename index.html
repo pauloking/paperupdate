@@ -3,26 +3,1332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订阅信息收集（WPS 表单）</title>
-    <!-- 简单美化，可自定义样式 -->
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: #f5f7fa; padding: 20px; font-family: "Microsoft YaHei", sans-serif; }
-        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; }
-        h1 { text-align: center; color: #333; margin-bottom: 20px; font-size: 24px; }
-        .form-embed { width: 100%; height: 800px; border: none; } /* 高度可根据表单长度调整 */
-        /* 响应式适配手机 */
-        @media (max-width: 768px) {
-            .container { padding: 15px; }
-            .form-embed { height: 700px; }
+    <title>PaperUpdate - 学术文献推送工具</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a4b8c',
+                        secondary: '#2a6fc7',
+                        accent: '#4a89dc',
+                        light: '#f5f7fa',
+                        dark: '#2d3748'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1)',
+                        'card-hover': '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .bg-gradient {
+                background: linear-gradient(135deg, #1a4b8c 0%, #2a6fc7 100%);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .glass-effect {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>📩 订阅信息收集</h1>
-        <!-- 关键：替换 src 为你的 WPS 表单嵌入链接 -->
-        <iframe class="form-embed" src="https://f.wps.cn/g/GokUJ03u" frameborder="0" allowfullscreen></iframe>
+<body class="font-sans text-gray-800 bg-gray-50">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="#" class="text-2xl font-bold text-primary flex items-center">
+                    <i class="fa fa-file-text-o mr-2"></i>
+                    <span>PaperUpdate</span>
+                </a>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="text-gray-600 hover:text-primary transition-all-300" data-lang="nav-features">功能</a>
+                <a href="#how-it-works" class="text-gray-600 hover:text-primary transition-all-300" data-lang="nav-how-it-works">工作原理</a>
+                <a href="#sample" class="text-gray-600 hover:text-primary transition-all-300" data-lang="nav-sample">文献样例</a>
+                <a href="#subscription" class="text-gray-600 hover:text-primary transition-all-300" data-lang="nav-subscription">订阅流程</a>
+                <a href="#ai-feature" class="text-gray-600 hover:text-primary transition-all-300" data-lang="nav-ai-feature">AI结构化筛选文献</a>
+                <a href="#faq" class="text-gray-600 hover:text-primary transition-all-300" data-lang="nav-faq">常见问题</a>
+            </div>
+            
+            <!-- Mobile Navigation Toggle -->
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="text-gray-600 hover:text-primary focus:outline-none mr-4">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center">
+                    <button id="mobile-lang-zh" class="px-2 py-1 rounded-l-md bg-primary text-white text-sm">中文</button>
+                    <button id="mobile-lang-en" class="px-2 py-1 rounded-r-md bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm">En</button>
+                </div>
+            </div>
+            
+            <!-- Language Switcher -->
+            <div class="hidden md:flex items-center mr-4">
+                <button id="lang-zh" class="px-3 py-1 rounded-l-md bg-primary text-white">中文</button>
+                <button id="lang-en" class="px-3 py-1 rounded-r-md bg-gray-200 text-gray-700 hover:bg-gray-300">English</button>
+            </div>
+            
+            <!-- CTA Button -->
+            <div class="hidden md:block">
+                <a href="#signup" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-md transition-all-300" data-lang="nav-get-started">
+                    立即开始
+                </a>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#features" class="text-gray-600 hover:text-primary py-2 transition-all-300" data-lang="nav-features">功能</a>
+                <a href="#how-it-works" class="text-gray-600 hover:text-primary py-2 transition-all-300" data-lang="nav-how-it-works">工作原理</a>
+                <a href="#sample" class="text-gray-600 hover:text-primary py-2 transition-all-300" data-lang="nav-sample">文献样例</a>
+                <a href="#subscription" class="text-gray-600 hover:text-primary py-2 transition-all-300" data-lang="nav-subscription">订阅流程</a>
+                <a href="#ai-feature" class="text-gray-600 hover:text-primary py-2 transition-all-300" data-lang="nav-ai-feature">AI结构化筛选文献</a>
+                <a href="#faq" class="text-gray-600 hover:text-primary py-2 transition-all-300" data-lang="nav-faq">常见问题</a>
+                <a href="#signup" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-md text-center transition-all-300" data-lang="nav-get-started">
+                    立即开始
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right" data-aos-duration="1000">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight" data-lang="hero-title">
+                        让学术文献更新<br>自动找到你
+                    </h1>
+                    <p class="text-xl mb-8 text-gray-100" data-lang="hero-subtitle">
+                        PaperUpdate 每周为你推送领域内最新研究文献，节省你宝贵的时间，让你专注于真正重要的工作。
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#signup" class="bg-white text-primary hover:bg-gray-100 px-8 py-3 rounded-md text-center font-medium transition-all-300" data-lang="hero-try-free">
+                            免费试用
+                        </a>
+                        <a href="#features" class="border border-white text-white hover:bg-white hover:text-primary px-8 py-3 rounded-md text-center font-medium transition-all-300" data-lang="hero-learn-more">
+                            了解更多
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2" data-aos="fade-left" data-aos-duration="1000">
+                    <img src="https://p3-doubao-search-sign.byteimg.com/labis/image/bebb0a9fbf422cd3365ecc42ddb2fec9~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1777863663&x-signature=C9mo%2BYl2hE1528eYeCQUbrO3x%2Fs%3D" alt="研究人员使用PaperUpdate" class="rounded-lg shadow-xl w-full">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Time Saving Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right" data-aos-duration="1000">
+                    <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/78512c45f5ae4082990ddef1d5b1a6bf~tplv-a9rns2rl98-image.image?rcl=20251105110050D2B06CC9DA9B47A90463&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764903686&x-signature=TBB5W94XMmRhbBnO51AeMmsRpMU%3D" alt="每周节省5小时" class="rounded-lg shadow-lg w-full">
+                </div>
+                <div class="md:w-1/2 md:pl-12" data-aos="fade-left" data-aos-duration="1000">
+                    <h2 class="text-3xl font-bold mb-6 text-primary" data-lang="time-saving-title">每周节省 <span class="text-accent">5小时</span> 文献检索时间</h2>
+                    <p class="text-lg mb-6 text-gray-700" data-lang="time-saving-desc">
+                        传统文献检索方法每周需要花费约5小时，而PaperUpdate可以自动为你完成这项工作，让你有更多时间专注于研究和创新。
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span data-lang="time-saving-point1">自动从Google Scholar和arXiv获取最新文献</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span data-lang="time-saving-point2">按照你的研究兴趣和关键词进行精准筛选</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span data-lang="time-saving-point3">结构化表格展示，一目了然</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span data-lang="time-saving-point4">每周定时推送，不错过任何重要研究</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-4 text-primary" data-lang="features-title">核心功能</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    PaperUpdate 提供全方位的学术文献推送服务，帮助研究人员高效获取领域内最新研究成果。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white rounded-lg shadow-card p-8 hover:shadow-card-hover transition-all-300" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-keyboard-o text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4" data-lang="feature1-title">关键词订阅</h3>
+                    <p class="text-gray-600" data-lang="feature1-desc">
+                        根据你的研究兴趣设置关键词，系统将自动筛选相关文献，确保你只收到感兴趣的内容。
+                    </p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-white rounded-lg shadow-card p-8 hover:shadow-card-hover transition-all-300" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-table text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4" data-lang="feature2-title">结构化展示</h3>
+                    <p class="text-gray-600" data-lang="feature2-desc">
+                        所有文献按照标题、作者、来源、发表时间等信息结构化展示，帮助你快速浏览和筛选。
+                    </p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-white rounded-lg shadow-card p-8 hover:shadow-card-hover transition-all-300" data-aos="fade-up" data-aos-delay="300">
+                    <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-calendar-check-o text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4" data-lang="feature3-title">每周推送</h3>
+                    <p class="text-gray-600" data-lang="feature3-desc">
+                        系统每周自动汇总最新文献，定时推送到你的邮箱，让你轻松掌握领域内的最新动态。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-4 text-primary" data-lang="how-it-works-title">工作原理</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto" data-lang="how-it-works-subtitle">
+                    PaperUpdate 基于先进的文献检索和筛选技术，为你提供个性化的学术文献推送服务。
+                </p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Step 1 -->
+                <div class="w-full md:w-1/3 mb-8 md:mb-0 text-center" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">1</div>
+                    <h3 class="text-xl font-semibold mb-4">设置关注关键词</h3>
+                    <p class="text-gray-600 px-4">
+                        输入你的研究领域、关键词和感兴趣的主题，系统将以此为基础进行文献检索。
+                    </p>
+                </div>
+                
+                <!-- Arrow -->
+                <div class="hidden md:block text-4xl text-gray-300" data-aos="fade-up">
+                    <i class="fa fa-long-arrow-right"></i>
+                </div>
+                <div class="md:hidden text-4xl text-gray-300 mb-8" data-aos="fade-up">
+                    <i class="fa fa-long-arrow-down"></i>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="w-full md:w-1/3 mb-8 md:mb-0 text-center" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">2</div>
+                    <h3 class="text-xl font-semibold mb-4">自动检索最新文献</h3>
+                    <p class="text-gray-600 px-4">
+                        系统定期从Google Scholar和arXiv等学术平台检索最新文献，确保信息的全面性和时效性。
+                    </p>
+                </div>
+                
+                <!-- Arrow -->
+                <div class="hidden md:block text-4xl text-gray-300" data-aos="fade-up">
+                    <i class="fa fa-long-arrow-right"></i>
+                </div>
+                <div class="md:hidden text-4xl text-gray-300 mb-8" data-aos="fade-up">
+                    <i class="fa fa-long-arrow-down"></i>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="w-full md:w-1/3 text-center" data-aos="fade-up" data-aos-delay="300">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">3</div>
+                    <h3 class="text-xl font-semibold mb-4">每周推送更新</h3>
+                    <p class="text-gray-600 px-4">
+                        系统每周将筛选后的文献汇总成结构化表格，发送到你的邮箱，让你轻松掌握最新研究动态。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Sources Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-4 text-primary">数据来源</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    PaperUpdate 汇集了全球主要学术平台的文献资源，确保你获取的信息全面且权威。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Google Scholar -->
+                <div class="bg-white rounded-lg shadow-card p-8 flex items-center" data-aos="fade-right">
+                    <div class="bg-red-100 p-4 rounded-lg mr-6">
+                        <i class="fa fa-google text-4xl text-red-500"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Google Scholar</h3>
+                        <p class="text-gray-600">
+                            涵盖了全球大部分学术期刊和会议论文，提供广泛的学术文献资源。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- arXiv -->
+                <div class="bg-white rounded-lg shadow-card p-8 flex items-center" data-aos="fade-left">
+                    <div class="bg-blue-100 p-4 rounded-lg mr-6">
+                        <i class="fa fa-file-text text-4xl text-blue-500"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">arXiv</h3>
+                        <p class="text-gray-600">
+                            包含物理学、数学、计算机科学、定量生物学、定量 finance 等领域的预印本。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sample Section -->
+    <section id="sample" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-4 text-primary">文献展示样例</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    PaperUpdate 将最新文献汇总成结构化表格，包含标题、作者、来源和发表时间等关键信息，让你一目了然。
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden" data-aos="fade-up">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-wrap items-center justify-between">
+                        <h3 class="text-xl font-semibold mb-2 md:mb-0">最新文献更新 (2025年11月1日 - 2025年11月7日)</h3>
+                        <div class="flex space-x-2">
+                            <select class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option>按标题排序</option>
+                                <option>按日期排序</option>
+                                <option>按来源排序</option>
+                            </select>
+                            <button class="bg-primary text-white px-4 py-1 rounded-md hover:bg-secondary transition-all-300">
+                                <i class="fa fa-filter mr-1"></i> 筛选
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    标题
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    作者
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    来源
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    发表时间
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    操作
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">深度学习在自然语言处理中的最新进展</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">张明, 李华, 王强</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">计算机学报</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">2025-11-05</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="#" class="text-primary hover:text-secondary mr-3">查看</a>
+                                    <a href="#" class="text-primary hover:text-secondary">AI摘要</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">基于区块链的学术数据共享平台设计与实现</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">刘伟, 陈明, 赵静</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">IEEE Transactions on Knowledge and Data Engineering</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">2025-11-03</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="#" class="text-primary hover:text-secondary mr-3">查看</a>
+                                    <a href="#" class="text-primary hover:text-secondary">AI摘要</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">气候变化对生物多样性的影响研究</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">王丽, 张伟, 李明</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">Nature Climate Change</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">2025-11-01</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="#" class="text-primary hover:text-secondary mr-3">查看</a>
+                                    <a href="#" class="text-primary hover:text-secondary">AI摘要</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">量子计算在密码学中的应用研究</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">陈强, 刘洋, 王静</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">Physical Review Letters</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">2025-10-30</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="#" class="text-primary hover:text-secondary mr-3">查看</a>
+                                    <a href="#" class="text-primary hover:text-secondary">AI摘要</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">基于大数据的城市交通流量预测模型</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">张强, 李明, 王华</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">Transportation Research Part C</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">2025-10-28</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="#" class="text-primary hover:text-secondary mr-3">查看</a>
+                                    <a href="#" class="text-primary hover:text-secondary">AI摘要</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="p-6 border-t border-gray-200 flex items-center justify-between">
+                    <div class="text-sm text-gray-500">
+                        显示 1-5 条，共 28 条
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 disabled:opacity-50" disabled>
+                            上一页
+                        </button>
+                        <button class="px-3 py-1 bg-primary text-white rounded-md">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50">2</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50">3</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50">
+                            下一页
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Process Section -->
+    <section id="subscription" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-4 text-primary">订阅流程</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    只需简单几步，即可开始使用 PaperUpdate 获取最新学术文献推送。
+                </p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden" data-aos="fade-up">
+                    <div class="p-8">
+                        <div class="mb-8">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/eab8690c823d43439cdb5a3b3a9c8463~tplv-a9rns2rl98-image.image?rcl=20251105110050D2B06CC9DA9B47A90463&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764903689&x-signature=7N8ZM1ZV0AX8%2BdG0Ye4LLjbv4IQ%3D" alt="订阅流程" class="w-full rounded-lg mb-6">
+                            
+                            <div class="space-y-6">
+                                <!-- Step 1 -->
+                                <div class="flex">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mr-4">
+                                        1
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium mb-2">创建账户</h3>
+                                        <p class="text-gray-600">
+                                            填写基本信息，创建你的 PaperUpdate 账户。
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Step 2 -->
+                                <div class="flex">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mr-4">
+                                        2
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium mb-2">设置关注关键词</h3>
+                                        <p class="text-gray-600">
+                                            输入你的研究领域、关键词和感兴趣的主题，系统将根据这些信息筛选相关文献。
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Step 3 -->
+                                <div class="flex">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mr-4">
+                                        3
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium mb-2">选择推送频率</h3>
+                                        <p class="text-gray-600">
+                                            设置你希望接收文献推送的频率，目前支持每周推送。
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Step 4 -->
+                                <div class="flex">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center mr-4">
+                                        4
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium mb-2">开始接收推送</h3>
+                                        <p class="text-gray-600">
+                                            完成设置后，系统将按照你的要求定期推送最新文献更新。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="#signup" class="bg-primary hover:bg-secondary text-white px-8 py-3 rounded-md text-center font-medium transition-all-300 inline-block">
+                                立即开始订阅
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Feature Section -->
+    <section id="ai-feature" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right" data-aos-duration="1000">
+                    <img src="https://p3-doubao-search-sign.byteimg.com/labis/7ac0f345e2abbdd5f4a7853aceb80221~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1777863663&x-signature=P4IGmE1ZGcEPv7O8nmmOaQmg0J0%3D" alt="AI智能摘要" class="rounded-lg shadow-lg w-full">
+                </div>
+                <div class="md:w-1/2 md:pl-12" data-aos="fade-left" data-aos-duration="1000">
+                    <span class="text-sm font-semibold text-primary uppercase tracking-wider">亮点功能</span>
+                    <h2 class="text-3xl font-bold mb-6 text-primary">AI结构化筛选文献</h2>
+                    <p class="text-lg mb-6 text-gray-700">
+                    PaperUpdate 利用AI技术对文献进行结构化分析和智能筛选，根据你的研究兴趣和关键词，精准识别最相关的高质量文献，大幅提高文献筛选效率。
+                </p>
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-semibold mb-3">示例：AI结构化筛选结果</h3>
+                        <p class="text-gray-600 mb-4">
+                            <span class="font-medium">研究领域匹配：</span>计算机科学与人工智能（98%匹配度）
+                        </p>
+                        <p class="text-gray-600 mb-4">
+                            <span class="font-medium">关键词匹配：</span>深度学习（95%）、自然语言处理（92%）、Transformer（88%）
+                        </p>
+                        <p class="text-gray-600 mb-4">
+                            <span class="font-medium">研究方法分析：</span>实证研究，基于Transformer架构的改进模型，包含对比实验和 ablation study
+                        </p>
+                        <p class="text-gray-600 mb-4">
+                            <span class="font-medium">创新点提取：</span>提出了一种新的注意力机制优化方法，在多个NLP任务上取得了SOTA结果
+                        </p>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <span class="mr-4"><i class="fa fa-filter mr-1"></i> 筛选维度：5个</span>
+                            <span><i class="fa fa-bar-chart mr-1"></i> 综合匹配度：94%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-300 text-gray-700 px-8 py-3 rounded-md text-center font-medium inline-block cursor-not-allowed">
+                        开发中，敬请期待
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-4 text-primary">常见问题</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    关于 PaperUpdate 的常见问题解答，如有其他疑问，请联系我们。
+                </p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <!-- FAQ Item 1 -->
+                <div class="bg-white rounded-lg shadow-card mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <button class="faq-toggle w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="text-lg font-medium">PaperUpdate 涵盖哪些学术资源？</span>
+                        <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-6">
+                        <p class="text-gray-600">
+                            PaperUpdate 主要基于 Google Scholar 和 arXiv 进行文献检索，涵盖了全球大部分学术期刊、会议论文和预印本。我们不断扩展数据源，以提供更全面的学术文献覆盖。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 2 -->
+                <div class="bg-white rounded-lg shadow-card mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <button class="faq-toggle w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="text-lg font-medium">如何设置关注关键词？</span>
+                        <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-6">
+                        <p class="text-gray-600">
+                            在注册并登录账户后，你可以在个人设置页面添加关注关键词。我们建议使用具体的研究术语和领域名称，并可以设置多个关键词组合，以获得更精准的文献推送。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 3 -->
+                <div class="bg-white rounded-lg shadow-card mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <button class="faq-toggle w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="text-lg font-medium">推送频率是固定的吗？</span>
+                        <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-6">
+                        <p class="text-gray-600">
+                            目前 PaperUpdate 主要提供每周推送服务，每周一将上周的最新文献汇总发送到你的邮箱。我们正在开发更灵活的推送频率选项，包括双周和每月推送，以满足不同用户的需求。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 4 -->
+                <div class="bg-white rounded-lg shadow-card mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <button class="faq-toggle w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="text-lg font-medium">AI智能摘要的准确性如何？</span>
+                        <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-6">
+                        <p class="text-gray-600">
+                            我们的 AI 摘要系统基于先进的自然语言处理技术，能够提取文献的核心内容和关键发现。虽然摘要的准确性已经达到较高水平，但我们仍建议用户在决定深入阅读文献前，先浏览原始摘要，以确保符合研究需求。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 5 -->
+                <div class="bg-white rounded-lg shadow-card" data-aos="fade-up" data-aos-delay="500">
+                    <button class="faq-toggle w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="text-lg font-medium">如何取消订阅？</span>
+                        <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-6">
+                        <p class="text-gray-600">
+                            你可以随时在账户设置页面取消订阅，或者点击每周推送邮件底部的"取消订阅"链接。取消订阅后，你将不再收到文献推送，但仍可以登录账户查看历史文献。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sign Up Section -->
+    <section id="signup" class="py-16 bg-gradient text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-6">开始使用 PaperUpdate</h2>
+                <p class="text-xl mb-8 text-gray-100">
+                    立即注册，享受每周文献自动推送服务，让你的研究工作更高效。
+                </p>
+                
+                <div class="bg-white rounded-lg shadow-xl p-8 text-gray-800">
+                    <!-- 嵌入的表单 -->
+                    <iframe src="https://f.wps.cn/g/GokUJ03u" width="100%" height="600" frameborder="0" marginheight="0" marginwidth="0">加载中...</iframe>
+                </div>
+                        
+                        
+                        
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div class="md:col-span-1">
+                    <a href="#" class="text-2xl font-bold flex items-center mb-4">
+                        <i class="fa fa-file-text-o mr-2"></i>
+                        <span>PaperUpdate</span>
+                    </a>
+                    <p class="text-gray-400 mb-4">
+                        让学术文献更新自动找到你，节省时间，提升研究效率。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-all-300">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all-300">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all-300">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all-300">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="text-gray-400 hover:text-white transition-all-300">功能</a></li>
+                        <li><a href="#how-it-works" class="text-gray-400 hover:text-white transition-all-300">工作原理</a></li>
+                        <li><a href="#sample" class="text-gray-400 hover:text-white transition-all-300">文献样例</a></li>
+                        <li><a href="#subscription" class="text-gray-400 hover:text-white transition-all-300">订阅流程</a></li>
+                        <li><a href="#ai-feature" class="text-gray-400 hover:text-white transition-all-300">AI智能摘要</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Resources -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">资源</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all-300">帮助中心</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all-300">使用指南</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all-300">API文档</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all-300">学术资源</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all-300">博客</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fa fa-envelope-o mt-1 mr-3 text-gray-400"></i>
+                            <span class="text-gray-400">contact@paperupdate.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-phone mt-1 mr-3 text-gray-400"></i>
+                            <span class="text-gray-400">+86 123 4567 8901</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker mt-1 mr-3 text-gray-400"></i>
+                            <span class="text-gray-400">北京市海淀区中关村南大街5号</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">
+                    &copy; 2025 PaperUpdate. 保留所有权利。
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-all-300">服务条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-all-300">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-all-300">Cookie政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all-300">
+        <i class="fa fa-chevron-up"></i>
+    </button>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full z-10" data-aos="zoom-in">
+            <div class="text-center">
+                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa fa-check text-2xl text-green-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">注册成功！</h3>
+                <p class="text-gray-600 mb-6">
+                    感谢您注册 PaperUpdate。我们已向您的邮箱发送了确认邮件，请查收并确认您的邮箱地址。
+                </p>
+                <button id="close-modal" class="bg-primary hover:bg-secondary text-white px-8 py-3 rounded-md text-center font-medium transition-all-300">
+                    关闭
+                </button>
+            </div>
+        </div>
     </div>
+
+    <script>
+        // Language translations
+        const translations = {
+            zh: {
+                // Navigation
+                'nav-features': '功能',
+                'nav-how-it-works': '工作原理',
+                'nav-sample': '文献样例',
+                'nav-subscription': '订阅流程',
+                'nav-ai-feature': 'AI结构化筛选文献',
+                'nav-faq': '常见问题',
+                'nav-get-started': '立即开始',
+                
+                // Hero Section
+                'hero-title': '让学术文献更新<br>自动找到你',
+                'hero-subtitle': 'PaperUpdate 每周为你推送领域内最新研究文献，节省你宝贵的时间，让你专注于真正重要的工作。',
+                'hero-try-free': '免费试用',
+                'hero-learn-more': '了解更多',
+                
+                // Time Saving Section
+                'time-saving-title': '每周节省 <span class="text-accent">5小时</span> 文献检索时间',
+                'time-saving-desc': '传统文献检索方法每周需要花费约5小时，而PaperUpdate可以自动为你完成这项工作，让你有更多时间专注于研究和创新。',
+                'time-saving-point1': '自动从Google Scholar和arXiv获取最新文献',
+                'time-saving-point2': '按照你的研究兴趣和关键词进行精准筛选',
+                'time-saving-point3': '结构化表格展示，一目了然',
+                'time-saving-point4': '每周定时推送，不错过任何重要研究',
+                
+                // Features Section
+                'features-title': '核心功能',
+                'features-subtitle': 'PaperUpdate 提供全方位的学术文献推送服务，帮助研究人员高效获取领域内最新研究成果。',
+                'feature1-title': '关键词订阅',
+                'feature1-desc': '根据你的研究兴趣设置关键词，系统将自动筛选相关文献，确保你只收到感兴趣的内容。',
+                'feature2-title': '结构化展示',
+                'feature2-desc': '所有文献按照标题、作者、来源、发表时间等信息结构化展示，帮助你快速浏览和筛选。',
+                'feature3-title': '每周推送',
+                'feature3-desc': '系统每周自动汇总最新文献，定时推送到你的邮箱，让你轻松掌握领域内的最新动态。',
+                
+                // How It Works Section
+                'how-it-works-title': '工作原理',
+                'how-it-works-subtitle': 'PaperUpdate 基于先进的文献检索和筛选技术，为你提供个性化的学术文献推送服务。',
+                'step1-title': '设置关注关键词',
+                'step1-desc': '输入你的研究领域、关键词和感兴趣的主题，系统将以此为基础进行文献检索。',
+                'step2-title': '自动检索最新文献',
+                'step2-desc': '系统定期从Google Scholar和arXiv等学术平台检索最新文献，确保信息的全面性和时效性。',
+                'step3-title': '每周推送更新',
+                'step3-desc': '系统每周将筛选后的文献汇总成结构化表格，发送到你的邮箱，让你轻松掌握最新研究动态。',
+                
+                // Data Sources Section
+                'data-sources-title': '数据来源',
+                'data-sources-subtitle': 'PaperUpdate 汇集了全球主要学术平台的文献资源，确保你获取的信息全面且权威。',
+                'google-scholar-desc': '涵盖了全球大部分学术期刊和会议论文，提供广泛的学术文献资源。',
+                'arxiv-desc': '包含物理学、数学、计算机科学、定量生物学、定量 finance 等领域的预印本。',
+                
+                // Sample Section
+                'sample-title': '文献展示样例',
+                'sample-subtitle': 'PaperUpdate 将最新文献汇总成结构化表格，包含标题、作者、来源和发表时间等关键信息，让你一目了然。',
+                'sample-table-title': '最新文献更新 (2025年11月1日 - 2025年11月7日)',
+                'sort-by-title': '按标题排序',
+                'sort-by-date': '按日期排序',
+                'sort-by-source': '按来源排序',
+                'filter-button': '筛选',
+                'table-header-title': '标题',
+                'table-header-authors': '作者',
+                'table-header-sources': '来源',
+                'table-header-date': '发表时间',
+                'table-header-action': '操作',
+                'view-button': '查看',
+                'ai-summary-button': 'AI摘要',
+                'showing-results': '显示 1-5 条，共 28 条',
+                'prev-page': '上一页',
+                'next-page': '下一页',
+                
+                // Subscription Process Section
+                'subscription-title': '订阅流程',
+                'subscription-subtitle': '只需简单几步，即可开始使用 PaperUpdate 获取最新学术文献推送。',
+                'subscription-image-alt': '订阅流程',
+                'step1-create-account': '创建账户',
+                'step1-create-account-desc': '填写基本信息，创建你的 PaperUpdate 账户。',
+                'step2-set-keywords': '设置关注关键词',
+                'step2-set-keywords-desc': '输入你的研究领域、关键词和感兴趣的主题，系统将根据这些信息筛选相关文献。',
+                'step3-select-frequency': '选择推送频率',
+                'step3-select-frequency-desc': '设置你希望接收文献推送的频率，目前支持每周推送。',
+                'step4-start-receiving': '开始接收推送',
+                'step4-start-receiving-desc': '完成设置后，系统将按照你的要求定期推送最新文献更新。',
+                'start-subscription': '立即开始订阅',
+                
+                // AI Feature Section
+                'ai-feature-highlight': '亮点功能',
+                'ai-feature-title': 'AI结构化筛选文献',
+                'ai-feature-subtitle': 'PaperUpdate 不仅为你推送最新文献，还能自动生成文献核心内容摘要，帮助你快速判断文献价值，节省阅读时间。',
+                'ai-example-title': '示例：深度学习在自然语言处理中的最新进展',
+                'ai-summary-label': 'AI摘要：',
+                'ai-summary-content': '本文综述了深度学习在自然语言处理领域的最新研究进展，重点讨论了Transformer架构的改进、预训练语言模型的发展以及多模态学习的应用。研究表明，基于注意力机制的模型在各种NLP任务上取得了显著突破，但仍面临计算资源消耗大、可解释性差等挑战。未来研究方向包括更高效的模型设计、低资源语言处理和伦理问题等。',
+                'reading-time': '阅读时间：3分钟',
+                'relevance-score': '相关性评分：95%',
+                'experience-ai': '体验AI结构化筛选功能',
+                
+                // FAQ Section
+                'faq-title': '常见问题',
+                'faq-subtitle': '关于 PaperUpdate 的常见问题解答，如有其他疑问，请联系我们。',
+                'faq1-question': 'PaperUpdate 涵盖哪些学术资源？',
+                'faq1-answer': 'PaperUpdate 主要基于 Google Scholar 和 arXiv 进行文献检索，涵盖了全球大部分学术期刊、会议论文和预印本。我们不断扩展数据源，以提供更全面的学术文献覆盖。',
+                'faq2-question': '如何设置关注关键词？',
+                'faq2-answer': '在注册并登录账户后，你可以在个人设置页面添加关注关键词。我们建议使用具体的研究术语和领域名称，并可以设置多个关键词组合，以获得更精准的文献推送。',
+                'faq3-question': '推送频率是固定的吗？',
+                'faq3-answer': '目前 PaperUpdate 主要提供每周推送服务，每周一将上周的最新文献汇总发送到你的邮箱。我们正在开发更灵活的推送频率选项，包括双周和每月推送，以满足不同用户的需求。',
+                'faq4-question': 'AI智能摘要的准确性如何？',
+                'faq4-answer': '我们的 AI 摘要系统基于先进的自然语言处理技术，能够提取文献的核心内容和关键发现。虽然摘要的准确性已经达到较高水平，但我们仍建议用户在决定深入阅读文献前，先浏览原始摘要，以确保符合研究需求。',
+                'faq5-question': '如何取消订阅？',
+                'faq5-answer': '你可以随时在账户设置页面取消订阅，或者点击每周推送邮件底部的"取消订阅"链接。取消订阅后，你将不再收到文献推送，但仍可以登录账户查看历史文献。',
+                
+                // Sign Up Section
+                'signup-title': '开始使用 PaperUpdate',
+                'signup-subtitle': '立即注册，享受每周文献自动推送服务，让你的研究工作更高效。',
+                'form-name': '姓名',
+                'form-name-placeholder': '请输入你的姓名',
+                'form-email': '邮箱',
+                'form-email-placeholder': '请输入你的邮箱地址',
+                'form-keywords': '研究关键词',
+                'form-keywords-placeholder': '请输入你的研究关键词，多个关键词用逗号分隔',
+                'form-field': '研究领域',
+                'form-field-select': '请选择研究领域',
+                'form-field-cs': '计算机科学',
+                'form-field-physics': '物理学',
+                'form-field-chemistry': '化学',
+                'form-field-biology': '生物学',
+                'form-field-medicine': '医学',
+                'form-field-engineering': '工程学',
+                'form-field-mathematics': '数学',
+                'form-field-economics': '经济学',
+                'form-field-psychology': '心理学',
+                'form-field-other': '其他领域',
+                'register-button': '免费注册',
+                'terms-privacy': '注册即表示你同意我们的 <a href="#" class="text-primary hover:underline">服务条款</a> 和 <a href="#" class="text-primary hover:underline">隐私政策</a>。',
+                
+                // Footer
+                'footer-about': '让学术文献更新自动找到你，节省时间，提升研究效率。',
+                'footer-quick-links': '快速链接',
+                'footer-resources': '资源',
+                'footer-help-center': '帮助中心',
+                'footer-guide': '使用指南',
+                'footer-api': 'API文档',
+                'footer-academic': '学术资源',
+                'footer-blog': '博客',
+                'footer-contact': '联系我们',
+                'footer-email': 'contact@paperupdate.com',
+                'footer-phone': '+86 123 4567 8901',
+                'footer-address': '北京市海淀区中关村南大街5号',
+                'footer-copyright': '&copy; 2025 PaperUpdate. 保留所有权利。',
+                'footer-terms': '服务条款',
+                'footer-privacy': '隐私政策',
+                'footer-cookie': 'Cookie政策',
+                
+                // Success Modal
+                'modal-success': '注册成功！',
+                'modal-message': '感谢您注册 PaperUpdate。我们已向您的邮箱发送了确认邮件，请查收并确认您的邮箱地址。',
+                'modal-close': '关闭',
+                
+                // Alert
+                'alert-fill-all': '请填写所有必填字段'
+            },
+            en: {
+                // Navigation
+                'nav-features': 'Features',
+                'nav-how-it-works': 'How It Works',
+                'nav-sample': 'Sample',
+                'nav-subscription': 'Subscription',
+                'nav-ai-feature': 'AI Summary',
+                'nav-faq': 'FAQ',
+                'nav-get-started': 'Get Started',
+                
+                // Hero Section
+                'hero-title': 'Let Academic Literature Updates<br>Find You Automatically',
+                'hero-subtitle': 'PaperUpdate delivers the latest research papers in your field weekly, saving you valuable time and allowing you to focus on what truly matters.',
+                'hero-try-free': 'Try Free',
+                'hero-learn-more': 'Learn More',
+                
+                // Time Saving Section
+                'time-saving-title': 'Save <span class="text-accent">5 Hours</span> Weekly on Literature Search',
+                'time-saving-desc': 'Traditional literature search methods take about 5 hours per week, but PaperUpdate automates this process, giving you more time to focus on research and innovation.',
+                'time-saving-point1': 'Automatically fetch latest papers from Google Scholar and arXiv',
+                'time-saving-point2': 'Precise filtering based on your research interests and keywords',
+                'time-saving-point3': 'Structured table display for easy overview',
+                'time-saving-point4': 'Weekly scheduled updates, never miss important research',
+                
+                // Features Section
+                'features-title': 'Core Features',
+                'features-subtitle': 'PaperUpdate provides comprehensive academic literature notification services, helping researchers efficiently access the latest research results in their field.',
+                'feature1-title': 'Keyword Subscription',
+                'feature1-desc': 'Set up keywords based on your research interests, and the system will automatically filter relevant literature to ensure you only receive content of interest.',
+                'feature2-title': 'Structured Display',
+                'feature2-desc': 'All papers are displayed in a structured format with title, authors, source, publication time and other key information, helping you quickly browse and filter.',
+                'feature3-title': 'Weekly Updates',
+                'feature3-desc': 'The system automatically summarizes the latest literature every week and sends it to your email on a regular basis, allowing you to easily stay updated on the latest developments in your field.',
+                
+                // How It Works Section
+                'how-it-works-title': 'How It Works',
+                'how-it-works-subtitle': 'PaperUpdate provides personalized academic literature notification services based on advanced literature retrieval and filtering technologies.',
+                'step1-title': 'Set Up Keywords',
+                'step1-desc': 'Enter your research field, keywords, and topics of interest, and the system will use this information as the basis for literature retrieval.',
+                'step2-title': 'Automatic Retrieval',
+                'step2-desc': 'The system regularly retrieves the latest literature from academic platforms such as Google Scholar and arXiv to ensure comprehensive and up-to-date information.',
+                'step3-title': 'Weekly Updates',
+                'step3-desc': 'The system summarizes the filtered literature into a structured table every week and sends it to your email, allowing you to easily stay updated on the latest research developments.',
+                
+                // Data Sources Section
+                'data-sources-title': 'Data Sources',
+                'data-sources-subtitle': 'PaperUpdate aggregates literature resources from major academic platforms worldwide to ensure you access comprehensive and authoritative information.',
+                'google-scholar-desc': 'Covers most academic journals and conference papers worldwide, providing extensive academic literature resources.',
+                'arxiv-desc': 'Contains preprints in physics, mathematics, computer science, quantitative biology, quantitative finance, and other fields.',
+                
+                // Sample Section
+                'sample-title': 'Literature Display Sample',
+                'sample-subtitle': 'PaperUpdate summarizes the latest literature into a structured table, including title, authors, source, publication time and other key information for easy overview.',
+                'sample-table-title': 'Latest Literature Updates (Nov 1, 2025 - Nov 7, 2025)',
+                'sort-by-title': 'Sort by Title',
+                'sort-by-date': 'Sort by Date',
+                'sort-by-source': 'Sort by Source',
+                'filter-button': 'Filter',
+                'table-header-title': 'Title',
+                'table-header-authors': 'Authors',
+                'table-header-sources': 'Sources',
+                'table-header-date': 'Publication Date',
+                'table-header-action': 'Action',
+                'view-button': 'View',
+                'ai-summary-button': 'AI Summary',
+                'showing-results': 'Showing 1-5 of 28 results',
+                'prev-page': 'Previous',
+                'next-page': 'Next',
+                
+                // Subscription Process Section
+                'subscription-title': 'Subscription Process',
+                'subscription-subtitle': 'Get started with PaperUpdate in just a few simple steps to receive the latest academic literature updates.',
+                'subscription-image-alt': 'Subscription Process',
+                'step1-create-account': 'Create Account',
+                'step1-create-account-desc': 'Fill in basic information to create your PaperUpdate account.',
+                'step2-set-keywords': 'Set Up Keywords',
+                'step2-set-keywords-desc': 'Enter your research field, keywords, and topics of interest, and the system will filter relevant literature based on this information.',
+                'step3-select-frequency': 'Select Frequency',
+                'step3-select-frequency-desc': 'Set how often you want to receive literature updates, currently supporting weekly updates.',
+                'step4-start-receiving': 'Start Receiving',
+                'step4-start-receiving-desc': 'After completing the setup, the system will regularly send you the latest literature updates according to your requirements.',
+                'start-subscription': 'Start Subscription',
+                
+                // AI Feature Section
+                'ai-feature-highlight': 'Highlight Feature',
+                'ai-feature-title': 'AI Summary Preview',
+                'ai-feature-subtitle': 'PaperUpdate not only delivers the latest literature to you but also automatically generates summaries of the core content of the papers, helping you quickly judge the value of the literature and save reading time.',
+                'ai-example-title': 'Example: Recent Advances in Deep Learning for Natural Language Processing',
+                'ai-summary-label': 'AI Summary:',
+                'ai-summary-content': 'This paper reviews the latest research advances in deep learning for natural language processing, focusing on improvements to the Transformer architecture, the development of pre-trained language models, and the application of multimodal learning. Studies show that attention-based models have achieved significant breakthroughs in various NLP tasks, but still face challenges such as high computational resource consumption and poor interpretability. Future research directions include more efficient model design, low-resource language processing, and ethical issues.',
+                'reading-time': 'Reading Time: 3 minutes',
+                'relevance-score': 'Relevance Score: 95%',
+                'experience-ai': 'Experience AI Summary',
+                
+                // FAQ Section
+                'faq-title': 'Frequently Asked Questions',
+                'faq-subtitle': 'Answers to common questions about PaperUpdate. If you have any other questions, please contact us.',
+                'faq1-question': 'What academic resources does PaperUpdate cover?',
+                'faq1-answer': 'PaperUpdate mainly retrieves literature based on Google Scholar and arXiv, covering most academic journals, conference papers, and preprints worldwide. We continuously expand our data sources to provide more comprehensive academic literature coverage.',
+                'faq2-question': 'How to set up keywords?',
+                'faq2-answer': 'After registering and logging in to your account, you can add keywords in the personal settings page. We recommend using specific research terms and field names, and you can set multiple keyword combinations to get more accurate literature updates.',
+                'faq3-question': 'Is the update frequency fixed?',
+                'faq3-answer': 'Currently, PaperUpdate mainly provides weekly update services, sending a summary of the latest literature from the previous week to your email every Monday. We are developing more flexible update frequency options, including bi-weekly and monthly updates, to meet different user needs.',
+                'faq4-question': 'How accurate are the AI summaries?',
+                'faq4-answer': 'Our AI summary system is based on advanced natural language processing technology and can extract the core content and key findings of literature. While the accuracy of the summaries has reached a high level, we still recommend users to browse the original abstract before deciding to read the literature in depth to ensure it meets their research needs.',
+                'faq5-question': 'How to unsubscribe?',
+                'faq5-answer': 'You can unsubscribe at any time in the account settings page or by clicking the "unsubscribe" link at the bottom of the weekly update email. After unsubscribing, you will no longer receive literature updates, but you can still log in to your account to view historical literature.',
+                
+                // Sign Up Section
+                'signup-title': 'Get Started with PaperUpdate',
+                'signup-subtitle': 'Register now to enjoy weekly automatic literature update services and make your research more efficient.',
+                'form-name': 'Name',
+                'form-name-placeholder': 'Please enter your name',
+                'form-email': 'Email',
+                'form-email-placeholder': 'Please enter your email address',
+                'form-keywords': 'Research Keywords',
+                'form-keywords-placeholder': 'Please enter your research keywords, multiple keywords separated by commas',
+                'form-field': 'Research Field',
+                'form-field-select': 'Please select your research field',
+                'form-field-cs': 'Computer Science',
+                'form-field-physics': 'Physics',
+                'form-field-chemistry': 'Chemistry',
+                'form-field-biology': 'Biology',
+                'form-field-medicine': 'Medicine',
+                'form-field-engineering': 'Engineering',
+                'form-field-mathematics': 'Mathematics',
+                'form-field-economics': 'Economics',
+                'form-field-psychology': 'Psychology',
+                'form-field-other': 'Other Fields',
+                'register-button': 'Register for Free',
+                'terms-privacy': 'By registering, you agree to our <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>.',
+                
+                // Footer
+                'footer-about': 'Let academic literature updates find you automatically, save time, and improve research efficiency.',
+                'footer-quick-links': 'Quick Links',
+                'footer-resources': 'Resources',
+                'footer-help-center': 'Help Center',
+                'footer-guide': 'User Guide',
+                'footer-api': 'API Documentation',
+                'footer-academic': 'Academic Resources',
+                'footer-blog': 'Blog',
+                'footer-contact': 'Contact Us',
+                'footer-email': 'contact@paperupdate.com',
+                'footer-phone': '+86 123 4567 8901',
+                'footer-address': '5 Zhongguancun South Street, Haidian District, Beijing',
+                'footer-copyright': '&copy; 2025 PaperUpdate. All rights reserved.',
+                'footer-terms': 'Terms of Service',
+                'footer-privacy': 'Privacy Policy',
+                'footer-cookie': 'Cookie Policy',
+                
+                // Success Modal
+                'modal-success': 'Registration Successful!',
+                'modal-message': 'Thank you for registering with PaperUpdate. We have sent a confirmation email to your email address. Please check and confirm your email address.',
+                'modal-close': 'Close',
+                
+                // Alert
+                'alert-fill-all': 'Please fill in all required fields'
+            }
+        };
+        
+        // Current language
+        let currentLang = 'zh';
+        
+        // Function to update language
+        function updateLanguage(lang) {
+            currentLang = lang;
+            
+            // Update all elements with data-lang attribute
+            document.querySelectorAll('[data-lang]').forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+            
+            // Update HTML lang attribute
+            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+            
+            // Update language switcher styles
+            if (lang === 'zh') {
+                document.getElementById('lang-zh').classList.add('bg-primary', 'text-white');
+                document.getElementById('lang-zh').classList.remove('bg-gray-200', 'text-gray-700');
+                document.getElementById('lang-en').classList.add('bg-gray-200', 'text-gray-700');
+                document.getElementById('lang-en').classList.remove('bg-primary', 'text-white');
+                
+                document.getElementById('mobile-lang-zh').classList.add('bg-primary', 'text-white');
+                document.getElementById('mobile-lang-zh').classList.remove('bg-gray-200', 'text-gray-700');
+                document.getElementById('mobile-lang-en').classList.add('bg-gray-200', 'text-gray-700');
+                document.getElementById('mobile-lang-en').classList.remove('bg-primary', 'text-white');
+            } else {
+                document.getElementById('lang-en').classList.add('bg-primary', 'text-white');
+                document.getElementById('lang-en').classList.remove('bg-gray-200', 'text-gray-700');
+                document.getElementById('lang-zh').classList.add('bg-gray-200', 'text-gray-700');
+                document.getElementById('lang-zh').classList.remove('bg-primary', 'text-white');
+                
+                document.getElementById('mobile-lang-en').classList.add('bg-primary', 'text-white');
+                document.getElementById('mobile-lang-en').classList.remove('bg-gray-200', 'text-gray-700');
+                document.getElementById('mobile-lang-zh').classList.add('bg-gray-200', 'text-gray-700');
+                document.getElementById('mobile-lang-zh').classList.remove('bg-primary', 'text-white');
+            }
+        }
+        
+        // Initialize AOS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language switcher event listeners
+            document.getElementById('lang-zh').addEventListener('click', function() {
+                updateLanguage('zh');
+            });
+            
+            document.getElementById('lang-en').addEventListener('click', function() {
+                updateLanguage('en');
+            });
+            
+            document.getElementById('mobile-lang-zh').addEventListener('click', function() {
+                updateLanguage('zh');
+            });
+            
+            document.getElementById('mobile-lang-en').addEventListener('click', function() {
+                updateLanguage('en');
+            });
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+            
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // FAQ Toggles
+            const faqToggles = document.querySelectorAll('.faq-toggle');
+            
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    content.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+            
+            // Back to Top Button
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('opacity-0', 'invisible');
+                    backToTopButton.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopButton.classList.remove('opacity-100', 'visible');
+                    backToTopButton.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Sign Up Form Submission
+            const signupForm = document.getElementById('signup-form');
+            const successModal = document.getElementById('success-modal');
+            const closeModal = document.getElementById('close-modal');
+            
+            signupForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simulate form submission
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const keywords = document.getElementById('keywords').value;
+                const field = document.getElementById('field').value;
+                
+                if (name && email && keywords && field) {
+                    // Show success modal
+                    successModal.classList.remove('hidden');
+                    
+                    // Reset form
+                    signupForm.reset();
+                } else {
+                    alert('请填写所有必填字段');
+                }
+            });
+            
+            closeModal.addEventListener('click', function() {
+                successModal.classList.add('hidden');
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === successModal) {
+                    successModal.classList.add('hidden');
+                }
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // Close mobile menu if open
+                        if (!mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+                        
+                        // Scroll to target
+                        const headerOffset = 80;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Sticky Header
+            const nav = document.querySelector('nav');
+            let lastScrollTop = 0;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // Scrolling down
+                    nav.classList.add('shadow-lg');
+                } else {
+                    // Scrolling up
+                    nav.classList.remove('shadow-lg');
+                }
+                
+                lastScrollTop = scrollTop;
+            });
+        });
+    </script>
 </body>
 </html>
